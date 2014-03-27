@@ -1,0 +1,41 @@
+{
+  "name": "Backbone.Property",
+  "version": "0.0.1",
+  "description": "A Backbone Model wrapper that exposes selected properties",
+  "main": "src/backbone-property.js",
+  "scripts": {
+    "test": "grunt test",
+    "posttest": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tomhicks/Backbone.Property.git"
+  },
+  "keywords": [
+    "Backbone",
+    "property",
+    "model",
+    "filter"
+  ],
+  "author": "Tom Hicks",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tomhicks/Backbone.Property/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.4",
+    "grunt-contrib-jshint": "~0.9.2",
+    "grunt-cli": "~0.1.13",
+    "chai": "~1.9.1",
+    "grunt-mocha-test": "~0.10.0",
+    "sinon": "~1.9.0",
+    "coveralls": "~2.10.0",
+    "mocha": "~1.18.2",
+    "istanbul": "~0.2.6",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-exec": "~0.4.5"
+  },
+  "dependencies": {
+    "lodash": "~2.4.1"
+  }
+}
