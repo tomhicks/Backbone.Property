@@ -16,8 +16,17 @@ function BackboneProperty (options) {
         throw new Error('You must pass a string as the \'property\' option');
     }
 
+    _.extend(this, {}, Backbone.Events);
+
     var _model = options.model,
-        _property = options.property;
+        _property = options.property,
+        _this = this;
+
+    function generateTrigger(event) {
+        return function () {
+            _this.trigger.apply(this, [event, _this].concat(Array.prototype.slice.call(arguments, 1)));
+        };
+    }
 
     this.get = function () {
         return _model.get(_property);
@@ -26,6 +35,9 @@ function BackboneProperty (options) {
     this.set = function (value, options) {
         _model.set(_property, value, options);
     };
+
+    this.listenTo(_model, 'change:' + _property , generateTrigger('change:' + _property));
+    this.listenTo(_model, 'change', generateTrigger('change'));
 }
 
 Backbone.Property = BackboneProperty;

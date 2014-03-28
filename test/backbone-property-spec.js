@@ -4,6 +4,7 @@ var expect = require('chai').expect;
 var sinon = require('sinon');
 var BackboneProperty = require('../src/backbone-property');
 var Backbone = require('backbone');
+var _ = require('lodash');
 
 describe('BackboneProperty', function () {
 
@@ -13,6 +14,12 @@ describe('BackboneProperty', function () {
                 model: new Backbone.Model(),
                 property: 'property'
             })).to.be.an.instanceof(BackboneProperty);
+        });
+
+        it('requires options', function () {
+            expect(function () {
+                new BackboneProperty();
+            }).to.throw('An options hash must be passed to the constructor');
         });
 
         it('should require a model', function () {
@@ -34,18 +41,17 @@ describe('BackboneProperty', function () {
 
     describe('get', function () {
         it('should get the property from the Backbone.Model', function () {
-            var model = {
-                get: sinon.spy()
-            };
+            var model = new Backbone.Model();
+            sinon.spy(model, 'get');
 
-            var property = new Backbone.Property({
+            var property = new BackboneProperty({
                 model: model,
                 property: 'prop'
             });
 
             property.get();
 
-            expect(model.get.calledWith('prop')).to.be.true;
+            sinon.assert.calledWithExactly(model.get, 'prop');
         });
     });
 
@@ -54,7 +60,8 @@ describe('BackboneProperty', function () {
             property;
 
         beforeEach(function () {
-            model = { set: sinon.spy() };
+            model = new Backbone.Model();
+            sinon.spy(model, 'set');
             property = new BackboneProperty({
                 model: model,
                 property: 'prop'
@@ -64,14 +71,51 @@ describe('BackboneProperty', function () {
         it('should call through to set on the model', function () {
             property.set('value');
 
-            expect(model.set.calledWith('value'));
+            sinon.assert.calledWith(model.set, 'prop', 'value');
         });
 
         it('should pass options', function () {
             property.set('value', { silent: true });
 
-            expect(model.set.calledWith('value', { silent: true }));
+            sinon.assert.calledWithExactly(model.set, 'prop', 'value', { silent: true });
         });
+    });
+
+    describe('when setting the model property', function () {
+        var model,
+            property,
+            handler,
+            listener;
+
+        beforeEach(function () {
+            model = new Backbone.Model();
+            property = new BackboneProperty({
+                model: model,
+                property: 'foo'
+            });
+
+            handler = sinon.spy();
+            listener = _.extend({}, Backbone.Events);
+        });
+
+        it('should fire a specific property change event when the property is set', function () {
+
+            listener.listenTo(property, 'change:foo', handler);
+            model.set('foo', 'abc', { test: 'def' });
+
+            sinon.assert.calledWithExactly(handler, property, 'abc', { test: 'def' });
+        });
+
+        it('should fire a change event when the property is set', function () {
+
+            listener.listenTo(property, 'change', handler);
+            model.set('foo', 'abc', {
+                something: 'def'
+            });
+
+            sinon.assert.calledWithExactly(handler, property, { something: 'def' });
+        });
+
     });
 
     it('should exist in the Backbone namespace', function () {
